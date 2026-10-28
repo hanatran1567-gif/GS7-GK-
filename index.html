@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Tập Tiếng Anh - Từ Vựng & Ngữ Pháp</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .visit-counter {
+            text-align: right;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-weight: 600;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .question-card {
+            margin-bottom: 20px;
+            padding: 18px;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .options-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .options-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background: #fff;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .option-label:hover {
+            border-color: var(--primary-color);
+            background-color: #f0f7fc;
+        }
+
+        .option-label input {
+            margin-right: 10px;
+        }
+
+        .explanation {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .explanation.correct {
+            background-color: #eef9f2;
+            border: 1px solid var(--success-color);
+            color: #27ae60;
+        }
+
+        .explanation.incorrect {
+            background-color: #fdf2f2;
+            border: 1px solid var(--error-color);
+            color: #c0392b;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 17px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        #result-summary {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="visit-counter" id="visitCount">Lượt truy cập: 0</div>
+
+    <h1>TỪ VỰNG & NGỮ PHÁP</h1>
+    <div class="subtitle">(VOCABULARY & GRAMMAR)</div>
+
+    <form id="quizForm">
+        <!-- Danh sách câu hỏi sẽ được render từ JavaScript -->
+        <div id="questionsContainer"></div>
+
+        <div class="btn-container">
+            <button type="button" class="btn-submit" onclick="checkQuiz()">NỘP BÀI</button>
+        </div>
+    </form>
+
+    <div id="result-summary"></div>
+</div>
+
+<script>
+    // 1. Đếm số lần truy cập bằng localStorage
+    function updateVisitCount() {
+        let count = localStorage.getItem('pageVisitCount');
+        if (!count) {
+            count = 1;
+        } else {
+            count = parseInt(count) + 1;
+        }
+        localStorage.setItem('pageVisitCount', count);
+        document.getElementById('visitCount').innerText = `Lượt truy cập trang: ${count}`;
+    }
+
+    // Dữ liệu câu hỏi, đáp án và giải thích
+    const quizData = [
+        {
+            q: "1. Regular exercise is good ______ your heart and muscles.",
+            options: ["A. at", "B. for", "C. with", "D. on"],
+            answer: "B",
+            explain: "Cụm từ <b>be good for something</b>: tốt cho cái gì (good for your heart = tốt cho tim)."
+        },
+        {
+            q: "2. My brother enjoys ______ models of famous buildings in his free time.",
+            options: ["A. make", "B. makes", "C. making", "D. made"],
+            answer: "C",
+            explain: "Cấu trúc <b>enjoy + V-ing</b>: thích làm gì."
+        },
+        {
+            q: "3. We should ______ the park after our picnic to keep it clean.",
+            options: ["A. clean up", "B. look for", "C. belong to", "D. tutor"],
+            answer: "A",
+            explain: "<b>clean up</b>: dọn dẹp sạch sẽ. Phù hợp nghĩa với 'để giữ công viên sạch đẹp'."
+        },
+        {
+            q: "4. My sister has a blue schoolbag. It belongs ______ my younger sister.",
+            options: ["A. for", "B. with", "C. at", "D. to"],
+            answer: "D",
+            explain: "Cụm động từ <b>belong to somebody</b>: thuộc về ai đó."
+        },
+        {
+            q: "5. My dad goes ______ at the nearest swimming pool every Sunday morning to keep fit.",
+            options: ["A. jogging", "B. cycling", "C. fishing", "D. swimming"],
+            answer: "D",
+            explain: "Ở hồ bơi (swimming pool) thì hoạt động tương ứng là <b>swimming</b> (bơi lội)."
+        },
+        {
+            q: "6. Reading in dim light is bad ______ your eyes.",
+            options: ["A. to", "B. with", "C. for", "D. about"],
+            answer: "C",
+            explain: "Cụm từ <b>be bad for something</b>: hại / không tốt cho cái gì."
+        },
+        {
+            q: "7. There are many different kinds ______ outdoor activities for teenagers, such as cycling and hiking.",
+            options: ["A. in", "B. of", "C. for", "D. with"],
+            answer: "B",
+            explain: "Cụm từ <b>kinds of + N</b>: các loại..."
+        },
+        {
+            q: "8. My sister goes jogging every evening to keep ______.",
+            options: ["A. fit", "B. health", "C. strength", "D. balance"],
+            answer: "A",
+            explain: "Cụm từ <b>keep fit</b>: giữ dáng, giữ cơ thể khỏe mạnh."
+        },
+        {
+            q: "9. Many teenagers enjoy hanging out with their friends because they are popular ______ their classmates.",
+            options: ["A. to", "B. for", "C. with", "D. at"],
+            answer: "C",
+            explain: "Cụm từ <b>be popular with somebody</b>: được ai đó yêu thích / phổ biến đối với ai."
+        },
+        {
+            q: "10. Reading for a long time in ______ may hurt your eyes.",
+            options: ["A. chapped lips", "B. sunburn", "C. dim light", "D. red spots"],
+            answer: "C",
+            explain: "<b>dim light</b> nghĩa là ánh sáng yếu/mờ. Đọc sách lâu trong ánh sáng yếu sẽ hại mắt."
+        },
+        {
+            q: "11. Our school is ______ old clothes for children in need.",
+            options: ["A. reducing", "B. littering", "C. tutoring", "D. donating"],
+            answer: "D",
+            explain: "<b>donating</b>: quyên góp (quyên góp quần áo cũ cho trẻ em khó khăn)."
+        },
+        {
+            q: "12. Making models can help students develop their ______.",
+            options: ["A. condition", "B. neighborhood", "C. creativity", "D. community"],
+            answer: "C",
+            explain: "<b>creativity</b>: sự sáng tạo (làm mô hình giúp phát triển trí sáng tạo)."
+        },
+        {
+            q: "13. My brother is ______ a diet because he wants to eat more healthily.",
+            options: ["A. on", "B. about", "C. with", "D. at"],
+            answer: "A",
+            explain: "Cụm từ <b>be on a diet</b>: đang ăn kiêng."
+        },
+        {
+            q: "14. We should eat more ______, such as carrots, tomatoes and broccoli.",
+            options: ["A. vitamins", "B. colored vegetables", "C. tofu", "D. sweetened food"],
+            answer: "B",
+            explain: "Cà rốt, cà chua và súp lơ là ví dụ của <b>colored vegetables</b> (rau củ có màu sắc)."
+        },
+        {
+            q: "15. You can ______ judo to improve your strength and balance.",
+            options: ["A. do", "B. play", "C. go", "D. make"],
+            answer: "A",
+            explain: "Động từ đi với võ thuật (judo, karate) là <b>do judo</b>."
+        },
+        {
+            q: "16. Children should avoid ______ too close to the television.",
+            options: ["A. sit", "B. to sit", "C. sitting", "D. sat"],
+            answer: "C",
+            explain: "Cấu trúc <b>avoid + V-ing</b>: tránh làm việc gì."
+        },
+        {
+            q: "17. My mother needs ______ more vegetables for dinner.",
+            options: ["A. buy", "B. buying", "C. buys", "D. to buy"],
+            answer: "D",
+            explain: "Cấu trúc <b>need + to-V</b>: cần làm gì đó."
+        },
+        {
+            q: "18. We should take care ______ our eyes by reading in a well-lit room.",
+            options: ["A. at", "B. of", "C. for", "D. with"],
+            answer: "B",
+            explain: "Cụm từ <b>take care of</b>: chăm sóc / bảo vệ."
+        },
+        {
+            q: "19. Eating too many sweets can cause ______, such as tooth decay and obesity.",
+            options: ["A. skin conditions", "B. health problems", "C. outdoor activities", "D. red spots"],
+            answer: "B",
+            explain: "Sâu răng (tooth decay) và béo phì (obesity) là các <b>health problems</b> (vấn đề sức khỏe)."
+        },
+        {
+            q: "20. You should ______ suncream before going outside on a sunny day.",
+            options: ["A. put on", "B. wear", "C. take", "D. Both A and B are correct."],
+            answer: "D",
+            explain: "Cả <b>put on suncream</b> và <b>wear suncream</b> đều đúng nghĩa là thoa/bôi kem chống nắng."
+        },
+        {
+            q: "21. My father helps me ______ my homework when I have difficulty with English.",
+            options: ["A. do", "B. doing", "C. does", "D. did"],
+            answer: "A",
+            explain: "Cấu trúc <b>help somebody do something</b> (hoặc help somebody to do something): giúp ai làm gì."
+        },
+        {
+            q: "22. We should ______ more trees to make our neighbourhood greener.",
+            options: ["A. clean up", "B. donate", "C. reduce", "D. plant"],
+            answer: "D",
+            explain: "<b>plant trees</b>: trồng cây (để xóm làng xanh hơn)."
+        },
+        {
+            q: "23. Horse riding, hiking and going boating are examples of ______.",
+            options: ["A. outdoor activities", "B. community services", "C. indoor activities", "D. voluntary activities"],
+            answer: "A",
+            explain: "Cưỡi ngựa, đi bộ đường dài, chèo thuyền là các <b>outdoor activities</b> (hoạt động ngoài trời)."
+        },
+        {
+            q: "24. My sister is learning how ______ healthy meals by following cooking instructions.",
+            options: ["A. prepare", "B. preparing", "C. to prepare", "D. prepared"],
+            answer: "C",
+            explain: "Cấu trúc <b>how + to-V</b>: cách làm một việc gì đó."
+        },
+        {
+            q: "25. My little brother can ______ his own bed every morning.",
+            options: ["A. makes", "B. making", "C. made", "D. make"],
+            answer: "D",
+            explain: "Sau động từ khuyết thiếu <b>can + V (nguyên thể)</b>. Cụm 'make one's bed': dọn dẹp giường."
+        },
+        {
+            q: "26. If you spend too much time being outside without suncream, you may ______.",
+            options: ["A. pop spots", "B. get sunburn", "C. affect your lips", "D. avoid sunburn"],
+            answer: "B",
+            explain: "<b>get sunburn</b>: bị cháy nắng."
+        },
+        {
+            q: "27. Our teacher makes us ______ the classroom after the art lesson.",
+            options: ["A. clean", "B. to clean", "C. cleaning", "D. cleaned"],
+            answer: "A",
+            explain: "Cấu trúc sai khiến <b>make somebody do something</b> (bắt/yêu cầu ai làm gì - V nguyên thể)."
+        },
+        {
+            q: "28. Stop eating too many sweets! You are putting ______ weight.",
+            options: ["A. over", "B. off", "C. in", "D. on"],
+            answer: "D",
+            explain: "Cụm động từ <b>put on weight</b>: tăng cân."
+        },
+        {
+            q: "29. Drinking enough water every day helps you stay ______.",
+            options: ["A. tired", "B. healthy", "C. weak", "D. unhealthy"],
+            answer: "B",
+            explain: "<b>stay healthy</b>: giữ sức khỏe tốt, luôn khỏe mạnh."
+        },
+        {
+            q: "30. Doing puzzles and making models can help students ______ their creativity.",
+            options: ["A. develop", "B. developing", "C. develops", "D. developed"],
+            answer: "A",
+            explain: "Cấu trúc <b>help somebody do something</b> (hoặc to do something): giúp ai phát triển..."
+        }
+    ];
+
+    // Render danh sách câu hỏi ra giao diện
+    function renderQuestions() {
+        const container = document.getElementById('questionsContainer');
+        let html = '';
+
+        quizData.forEach((item, index) => {
+            const qNum = index + 1;
+            html += `
+                <div class="question-card" id="card-${qNum}">
+                    <div class="question-text">${item.q}</div>
+                    <div class="options-group">
+                        ${item.options.map((opt) => {
+                            const optKey = opt.charAt(0); // A, B, C, D
+                            return `
+                                <label class="option-label">
+                                    <input type="radio" name="q${qNum}" value="${optKey}">
+                                    ${opt}
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div class="explanation" id="exp-${qNum}"></div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // Chấm điểm và hiển thị giải thích lỗi sai
+    function checkQuiz() {
+        let score = 0;
+        const total = quizData.length;
+
+        quizData.forEach((item, index) => {
+            const qNum = index + 1;
+            const selected = document.querySelector(`input[name="q${qNum}"]:checked`);
+            const expDiv = document.getElementById(`exp-${qNum}`);
+
+            expDiv.style.display = 'block';
+
+            if (selected) {
+                const userChoice = selected.value;
+                if (userChoice === item.answer) {
+                    score++;
+                    expDiv.className = 'explanation correct';
+                    expDiv.innerHTML = `<b>✓ Chính xác!</b><br>${item.explain}`;
+                } else {
+                    expDiv.className = 'explanation incorrect';
+                    expDiv.innerHTML = `<b>✗ Chưa đúng! (Bạn chọn ${userChoice} - Đáp án đúng là ${item.answer})</b><br><b>Giải thích:</b> ${item.explain}`;
+                }
+            } else {
+                expDiv.className = 'explanation incorrect';
+                expDiv.innerHTML = `<b>✗ Chưa trả lời! (Đáp án đúng là ${item.answer})</b><br><b>Giải thích:</b> ${item.explain}`;
+            }
+        });
+
+        const summary = document.getElementById('result-summary');
+        summary.style.display = 'block';
+        summary.style.backgroundColor = score === total ? '#eef9f2' : '#eef5fc';
+        summary.style.color = score === total ? '#2ecc71' : '#3498db';
+        summary.innerHTML = `Kết quả của bạn: ${score} / ${total} câu đúng!`;
+
+        // Cuộn xuống kết quả
+        summary.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Khởi tạo trang
+    window.onload = function() {
+        updateVisitCount();
+        renderQuestions();
+    };
+</script>
+
+</body>
+</html>
